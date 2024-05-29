@@ -112,5 +112,22 @@ Artık tek bir işletim sistemi üzerinde birbirinden izole birden fazla uygulam
 - Control Groups (Kontrol Grupları):
   - Kontrol grupları, bir grup sürecin kullanılabileceği kaynakları sınırlamak, izlemek ve önceliklendirmek için kullanılır. Bu bellek, CPU, ağ bant genişliği gibi kaynakların etkin bir şekilde yönetilmesini sağlar.
   - Kontrol grupları, kaynakların adil bir şekilde paylaşılamsını ve aşırı taleperlin diğer süreçleri etkilememsini sağlar.
+Container teknolojisi, bu isim alanları ve kontrol grupları sayesinde uygulamaların birbirinden izole bir şekilde çalışmasını, kaynakların etkili bir şekilde kullanılmasını ve taşınabilirliği artırarar hızlı dağıtımı sağlar. Docker, Kubernetes ve diğer container platformları, bu özellikleri kullanarak containerlarınyönetimini kolaylaştırır ve geliştiricilere operasyon ekiperine esneklik sunar.
+
+## Docker
+
+Docker bir container tabanlı sanallaştırma platformudur vek ullanıcıya bir uygulamanın bağımlıklıklarını ve çalışma ortamının hafif taşınabilir bir container içinde paketlenmesini ve izole edilmiş bir şekilde çalıştırılmasını sağlar. İşte docker'ın temel özelliklerini ve avantajlarını vugulayan birleiştirimiş açıklama:
+Docker, diğer sanal kanelerden farklı olarak, linux çekirdeği paylaşarak bağısız containerlar oluşturur. bu sanal işletim sistemini sifiran oluşturmak yerine, daha hızlı ve verimli bir şekilde sistemlerin kullanılmasını sağlar. bu sayede docker oladam bir sistem oluşturmak için gereken zorlu ve zaman laıcı süreçler ortadan kalkar.
+Docker wen sitelerinin kurulumları, teslteri ve dağıtımları gibi iişlemlşeri hızlı ve kolay bir şekilde gerçekleştirmek içi kullanılır. Özellikle webmaster'lar için "Mevcut bilgisayarda çalışıp, sunucuda çalışmama" gibi sorunları ortadan kaldırır. Docker'ınn sağladığı izolasyon, uygulamarın herhangi bir ortamda tutuarluı bir şekilde çalışmasını sağlar.
+Docker'ın temel avantajlarından biri, daha az sistem kaynağı tüketmesi sağlamasıdır. Geleneklesel sanal makinelerden farlı olarak Docker, contaileri ayrı bir işerim sistemi katmanı içermez ve Docker engine üzeirnden bir işletim sistemine erğşim sağlar. buda fahif ve hızlı containerin olıştumrnasını mümkün kılar.
+Sonuç olarak docker uygulama gelitlirme, test etme ve dağıtma süreçlerinini hızlandıran, taşınabilr ve izole etilmiş containerlar sunan bir sannallaştırma çözümüdür.
+
+Docker engine, uygulamarı containerlara paketleme ve dağıtma konusunda oldukça popüler olan contailerlaştırma teknolojisi sunar. bu yazılım geliştirme süreçlerini hızlandırabilir, uygulama bağımlılıkalrını izole edebilir ve farklı ortamlarda sorunsuz bir şekilde uygulamalar oluşturmayı kolaylaştırabilir.
+
+### Docker Image Nedir?
+
+Docker image bir uygulamanın ve gereksinimlerinin bir paketlenmiş haline denir. Bu image erişilebilir biryerde ise docker engine yüklü heryerden bu image indiriebilir ve bu imageden istediği mkadar container oluşturabilir. Yani container denilen şey imagelerin çalışan hali denilebilir
+
+#
 
 
