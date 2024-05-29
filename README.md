@@ -94,5 +94,23 @@ Containerlar ve sanal makineler benzer temel amaca sahip olmalarına rağmen, ç
 - Yedekleme ve Dağıtım:
   - Sanal makineler: Sanal makineler yedeklenmesi ve taşınması genellikle karmalıktır. Tam bir işletim sistemi içerdiği için dosya boyutlarıda büyüktür.
   - Containerlar: Containerlar, hızlı ve kolay şekilde yedeklenebilir ve taşınabilir. Dosya boyutu küçüktür.
+Sonuç olarak her teknoloji kendi avantajları ve kullanım seneryolarına sahiptir. Sanal makineler, daha kapsamlı izolasyon ve bağımsızlık sağlamak için kullanılırken, containerlar daha fafif ve hızlı dağıtım için tercih edilmektedir.
+
+#
+
+Artık tek bir işletim sistemi üzerinde birbirinden izole birden fazla uygulama var bu şekilde processleri koyduk ve çalışması için tüm ek paketler var ama işletim sisteminin kaynakları, özellikleri yok. artık bu 2 paket izole bir process olarak çalışıyor.
+
+- Namespaces (isim alanları):
+  - isim alanları, işletim sistemi içindeki farklı türde kaynakları özole etmek ve her bir containeri kendi sanal ortamında oluşturmak için kullanılır. Bu bir containerın diğer containerdan ve ana işletim sisteminde özole olasını sağlar. Başlıca namespcaes şunları içerir:
+    - PID: Süreç izolasyonu sağlar
+    - Network: Ağ kaynakları izolasyonu sağlar
+    - Mount: Dosya sistemi izolasyonu sağlar
+    - IPC: Süreç iletişim izolasyonu sağlar
+    - UTS: Sistem adı izolasyonu sağlar
+    - User: Kullanıcı alanı izolasyonu sağlar.
+
+- Control Groups (Kontrol Grupları):
+  - Kontrol grupları, bir grup sürecin kullanılabileceği kaynakları sınırlamak, izlemek ve önceliklendirmek için kullanılır. Bu bellek, CPU, ağ bant genişliği gibi kaynakların etkin bir şekilde yönetilmesini sağlar.
+  - Kontrol grupları, kaynakların adil bir şekilde paylaşılamsını ve aşırı taleperlin diğer süreçleri etkilememsini sağlar.
 
 
