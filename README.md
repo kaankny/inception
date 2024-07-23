@@ -250,3 +250,103 @@ ENTRYPOINT [ "/dbstart.sh" ]
 # cmd olarak mariadbd komutunu çalıştırır
 CMD [ "mariadbd" ]
 ```
+
+## NGINX
+
+### nxstart.sh
+```sh
+#!/bin/bash
+
+echo "server { "  >> /etc/nginx/sites-enabled/default # Nginx ayarlarını yapıyoruz
+echo "	listen 443 ssl;"  >> /etc/nginx/sites-enabled/default # 443 portundan ssl ile dinlemesini sağlıyoruz (IPV4)
+echo "	listen [::]:443 ssl;"  >> /etc/nginx/sites-enabled/default # 443 portundan ssl ile dinlemesini sağlıyoruz (IPV6)
+echo "	server_name $DOMAIN_NAME;"  >> /etc/nginx/sites-enabled/default # Domain adını belirtiyoruz
+
+echo "	ssl_certificate $CERTIFICATES; "  >> /etc/nginx/sites-enabled/default # Sertifikaları belirtiyoruz
+echo "	ssl_certificate_key $CERTIFICATES_KEYOUT; "  >> /etc/nginx/sites-enabled/default # Sertifikaların key'ini belirtiyoruz
+echo "	ssl_protocols TLSv1.3;"  >> /etc/nginx/sites-enabled/default # SSL protokolünü belirtiyoruz
+
+echo "	root /var/www/html;"  >> /etc/nginx/sites-enabled/default # Nginx'in root dizinini belirtiyoruz
+
+echo "	index index.php;"  >> /etc/nginx/sites-enabled/default # Index dosyasını belirtiyoruz
+
+echo '        location / {'  >> /etc/nginx/sites-enabled/default # Nginx'in location ayarlarını yapıyoruz
+echo '                try_files $uri $uri/ =404;'  >> /etc/nginx/sites-enabled/default # Dosya yoksa 404 döndürüyoruz
+echo '        }'  >> /etc/nginx/sites-enabled/default
+ 
+echo "	location ~ \.php$ { "  >> /etc/nginx/sites-enabled/default # Php dosyaları için location ayarlarını yapıyoruz
+echo "		include snippets/fastcgi-php.conf;"  >> /etc/nginx/sites-enabled/default # Fastcgi ayarlarını dahil ediyoruz
+echo "		fastcgi_pass $MYSQL_DATABASE_NAME:9000;"  >> /etc/nginx/sites-enabled/default # Php dosyalarını hangi porttan dinleyeceğini belirtiyoruz
+echo "		proxy_connect_timeout 300s; "  >> /etc/nginx/sites-enabled/default # Proxy bağlantı timeout ayarlarını yapıyoruz
+echo "		proxy_send_timeout 300s; "  >> /etc/nginx/sites-enabled/default # Proxy gönderme timeout ayarlarını yapıyoruz
+echo "		proxy_read_timeout 300s; "  >> /etc/nginx/sites-enabled/default # Proxy okuma timeout ayarlarını yapıyoruz
+echo "		fastcgi_send_timeout 300s; "  >> /etc/nginx/sites-enabled/default # Fastcgi gönderme timeout ayarlarını yapıyoruz
+echo "		fastcgi_read_timeout 300s; " >> /etc/nginx/sites-enabled/default # Fastcgi okuma timeout ayarlarını yapıyoruz
+echo "	} "  >> /etc/nginx/sites-enabled/default
+echo "}" >> /etc/nginx/sites-enabled/default
+
+if [ ! -f $CERTIFICATES ]; then # Eğer sertifikalar yoksa sertifikaları oluşturuyoruz
+    # Openssl aracılığı ile sertifikaları oluşturuyoruz
+    openssl req \
+    # 2048 bitlik rsa algoritmasını kullanarak yeni bir key oluşturuyoruz
+    -newkey rsa:2048 \
+    # Key oluştururken şifre sormaması için kullanıyoruz
+    -nodes \
+    # Key'i $CERTIFICATES_KEYOUT dosyasına yazıyoruz
+    -keyout $CERTIFICATES_KEYOUT \
+    # Sertifika isteği yerine doğrudan kendi imzali sertifikayı oluşturuyoruz
+    -x509 \
+    # Sertifika 365 gün geçerli olacak şekilde oluşturuyoruz
+    -days 365 \
+    # Sertifikanın nereye kaydedileceğini belirtiyoruz
+    -out $CERTIFICATES \
+    # Sertifika oluştururken hangi bilgilerin isteneceğini belirtiyoruz
+    -subj "/C=TR/ST=KOCAELI/L=GEBZE/O=42Kocaeli/CN=$DOMAIN_NAME";
+fi
+
+exec "$@"
+```
+
+## Wordpress
+
+### wp.sh
+
+```sh
+#!/bin/bash
+
+chown -R www-data: /var/www/*; # /var/www dizinindeki tüm dosyaların sahibi ve grubunu www-data yapıyoruz
+chmod -R 755 /var/www/*; # /var/www dizinindeki tüm dosyalara okuma, yazma (sahip) ve çalışma izinleri veriyoruz
+mkdir -p /run/php/; # /run/php dizinini oluşturuyoruz, eğer yoksa
+touch /run/php/php7.4-fpm.pid; # /run/php dizininde php7.4-fpm.pid dosyasını oluşturuyoruz
+
+if [ ! -f /var/www/html/wp-config.php ]; then # Eğer wp-config.php dosyası mevcut değilse
+    mkdir -p /var/www/html; # /var/www/html dizinini oluşturuyoruz, eğer yoksa
+    cd /var/www/html; # /var/www/html dizinine geçiyoruz
+
+    wp-cli core download --allow-root; # WordPress çekirdek dosyalarını indiriyoruz
+
+    wp-cli config create --allow-root \ # WordPress yapılandırma dosyasını oluşturuyoruz
+        --dbname=$MYSQL_DATABASE_NAME \ # Veritabanı adını belirliyoruz
+        --dbuser=$MYSQL_USER \ # Veritabanı kullanıcı adını belirliyoruz
+        --dbpass=$MYSQL_PASSWORD \ # Veritabanı kullanıcı şifresini belirliyoruz
+        --dbhost=mariadb; # Veritabanı sunucusunun adresini belirliyoruz
+
+    echo "WordPress installation has started. Wait until the installation is completed." # WordPress kurulumunun başladığını belirten bir mesaj yazdırıyoruz
+
+    wp-cli core install --allow-root \ # WordPress kurulumunu başlatıyoruz
+        --url=$DOMAIN_NAME \ # WordPress sitesinin URL adresini belirliyoruz
+        --title=$TITLE \ # WordPress sitesinin başlığını belirliyoruz
+        --admin_user=$WORDPRESS_ADMIN_NAME \ # WordPress yönetici kullanıcı adını belirliyoruz
+        --admin_password=$WORDPRESS_ADMIN_PASSWORD \ # WordPress yönetici şifresini belirliyoruz
+        --admin_email=$WORDPRESS_ADMIN_EMAIL; # WordPress yönetici email adresini belirliyoruz
+
+    wp-cli user create --allow-root \ # Yeni bir WordPress kullanıcısı oluşturuyoruz
+        $MYSQL_USER $MYSQL_EMAIL \ # Kullanıcı adı ve email adresini belirliyoruz
+        --user_pass=$MYSQL_PASSWORD; # Kullanıcı şifresini belirliyoruz
+fi
+
+echo "You can visit $DOMAIN_NAME in your browser." # Tarayıcıdan WordPress sitesine erişim yapılabileceğini belirten bir mesaj yazdırıyoruz
+
+exec "$@" # Başlatılan komut dosyasının sonuna kadar çalıştırılmasını sağlıyoruz
+
+```
