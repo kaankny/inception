@@ -223,3 +223,30 @@ mariadb -e "SHUTDOWN;" # Mariadb servisini kapatıyoruz (Çünkü Mariadb servis
 
 exec "$@" # Gelen komutları çalıştırıyoruz (bu durumda CMD ["mariadb"] olacak)
 ```
+
+### Mariadb Dockerfile
+```Dockerfile
+# debian:bullseye imajını temel alır
+FROM debian:bullseye
+
+# mariadb-server paketini yükler
+RUN apt-get update && apt-get install -y mariadb-server
+
+# 3306 portunu açar
+EXPOSE 3306
+
+# ana makine üzerindeki conf dosyalarını kopyalar
+COPY ./conf/50-server.cnf /etc/mysql/mariadb.conf.d/
+
+# ana makine üzerindeki dbstart.sh dosyasını kopyalar
+COPY ./tools/dbstart.sh /
+
+# dbstart.sh dosyasına çalıştırma izni verir
+RUN chmod +x /dbstart.sh
+
+# entrypoint olarak dbstart.sh dosyasını çalıştırır
+ENTRYPOINT [ "/dbstart.sh" ]
+
+# cmd olarak mariadbd komutunu çalıştırır
+CMD [ "mariadbd" ]
+```
