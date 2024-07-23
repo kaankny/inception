@@ -124,10 +124,102 @@ Sonuç olarak docker uygulama gelitlirme, test etme ve dağıtma süreçlerinini
 
 Docker engine, uygulamarı containerlara paketleme ve dağıtma konusunda oldukça popüler olan contailerlaştırma teknolojisi sunar. bu yazılım geliştirme süreçlerini hızlandırabilir, uygulama bağımlılıkalrını izole edebilir ve farklı ortamlarda sorunsuz bir şekilde uygulamalar oluşturmayı kolaylaştırabilir.
 
-### Docker Image Nedir?
+## 
 
-Docker image bir uygulamanın ve gereksinimlerinin bir paketlenmiş haline denir. Bu image erişilebilir biryerde ise docker engine yüklü heryerden bu image indiriebilir ve bu imageden istediği mkadar container oluşturabilir. Yani container denilen şey imagelerin çalışan hali denilebilir
+docker-compose.yml
+```yml
+version: "3.8" # versioyun 3.8 olarak ayarlıyoruz
 
-#
+services: # servislerimizi tanımlıyoruz
+  mariadb: # mariadb servisimizi tanımlıyoruz
+    container_name: mariadb # container ismini mariadb olarak belirliyoruz
+    build: ./requirements/mariadb # build işlemi için gereken dosya yolunu belirliyoruz (mariadb klasörü içerisindeki Dockerfile dosyasını kullanacağız)
+    env_file: # .env dosyasını kullanarak ortam değişkenlerini belirliyoruz
+      - .env
+    networks: # mariadb servisimizi inception adında bir ağa bağlıyoruz
+      - inception
+    volumes: # mariadb servisimizin verilerini saklamak için bir volume oluşturuyoruz (mariadb adındaki volume'u /var/lib/mysql dizinine bağlıyoruz)
+      - mariadb:/var/lib/mysql
+    restart: unless-stopped # mariadb servisimiz herhangi bir hata durumunda yeniden başlatılacak
+  wordpress: # wordpress servisimizi tanımlıyoruz
+    container_name: wordpress # container ismini wordpress olarak belirliyoruz
+    build: ./requirements/wordpress # build işlemi için gereken dosya yolunu belirliyoruz (wordpress klasörü içerisindeki Dockerfile dosyasını kullanacağız)
+    env_file: # .env dosyasını kullanarak ortam değişkenlerini belirliyoruz
+      - .env
+    networks: # wordpress servisimizi inception adında bir ağa bağlıyoruz
+      - inception
+    volumes: # wordpress servisimizin verilerini saklamak için bir volume oluşturuyoruz (wordpress adındaki volume'u /var/www/html dizinine bağlıyoruz)
+      - wordpress:/var/www/html
+    depends_on: # wordpress servisimizin çalışabilmesi için mariadb servisine bağlı olduğunu belirtiyoruz
+      - mariadb
+    restart: unless-stopped # wordpress servisimiz herhangi bir hata durumunda yeniden başlatılacak
+  nginx: # nginx servisimizi tanımlıyoruz
+    container_name: nginx # container ismini nginx olarak belirliyoruz
+    build: ./requirements/nginx # build işlemi için gereken dosya yolunu belirliyoruz (nginx klasörü içerisindeki Dockerfile dosyasını kullanacağız)
+    env_file: # .env dosyasını kullanarak ortam değişkenlerini belirliyoruz
+      - .env
+    ports:
+      - "443:443" # nginx servisimizi dış ağa açmak için 443 portunu kullanacağız
+    networks: # nginx servisimizi inception adında bir ağa bağlıyoruz
+      - inception
+    volumes: # nginx servisimizin konfigürasyon dosyalarını saklamak için bir volume oluşturuyoruz (nginx adındaki volume'u /etc/nginx/conf.d dizinine bağlıyoruz)
+      - wordpress:/var/www/html
+    depends_on: # nginx servisimizin çalışabilmesi için wordpress servisine bağlı olduğunu belirtiyoruz
+      - wordpress
+    restart: unless-stopped # nginx servisimiz herhangi bir hata durumunda yeniden başlatılacak
 
+networks: # inception adında bir ağ oluşturuyoruz
+  inception: # inception adındaki ağımızı tanımlıyoruz
+    name: inception # ağımızın adını inception olarak belirliyoruz
+    driver: bridge # ağımızın tipini bridge olarak belirliyoruz (bridge ağ tipi, container'ların birbirleriyle iletişim kurabilmesi için kullanılan bir ağ tipidir)
 
+volumes: # mariadb ve wordpress servislerimizin verilerini saklamak için iki adet volume oluşturuyoruz
+  wordpress: # wordpress adındaki volume'u tanımlıyoruz
+    name: wordpress # volume'un adını wordpress olarak belirliyoruz
+    driver: local # volume'un tipini local olarak belirliyoruz (local volume'lar, host makinemizde saklanan verileri container'larımızla paylaşmamızı sağlar)
+    driver_opts: # volume'un bağlı olduğu dizini belirliyoruz
+      type: none # volume'un tipini none olarak belirliyoruz (volume'un tipi none olursa, volume'un bağlı olduğu dizin host makinemizde olmalıdır)
+      o: bind # volume'un bağlı olduğu dizin host makinemizde olmalıdır (bind tipi, volume'un bağlı olduğu dizini host makinemizde oluşturur)
+      device: /home/kkanyilm/data/wordpress # volume'un bağlı olduğu dizini belirliyoruz
+  mariadb: # mariadb adındaki volume'u tanımlıyoruz
+    name: mariadb # volume'un adını mariadb olarak belirliyoruz
+    driver: local # volume'un tipini local olarak belirliyoruz (local volume'lar, host makinemizde saklanan verileri container'larımızla paylaşmamızı sağlar)
+    driver_opts: # volume'un bağlı olduğu dizini belirliyoruz
+      type: none # volume'un tipini none olarak belirliyoruz (volume'un tipi none olursa, volume'un bağlı olduğu dizin host makinemizde olmalıdır)
+      o: bind # volume'un bağlı olduğu dizin host makinemizde olmalıdır (bind tipi, volume'un bağlı olduğu dizini host makinemizde oluşturur)
+      device: /home/kkanyilm/data/mariadb # volume'un bağlı olduğu dizini belirliyoruz
+```
+
+## MARIADB
+
+### 50-server.cnf
+```cnf
+[mysqld]
+
+user                    = mysql # user to run as
+socket                  = /run/mysqld/mysqld.sock # socket file (for local connections)
+port                    = 3306 # port to listen on
+basedir                 = /usr # base directory (where the binaries are)
+datadir                 = /var/lib/mysql # data directory (where the databases are)
+log_error               = /var/log/mysql/error.log # error log file (where errors are logged)
+expire_logs_days        = 10 # days to keep logs
+character-set-server    = utf8mb4 # character set
+bind-address            = 0.0.0.0 # bind address
+```
+
+### dtstart.sh
+```sh
+#!/bin/bash
+
+service mariadb start # Mariadb servisini başlatıyoruz
+
+sleep 3 # 3 saniye bekliyoruz (Mariadb servisinin başlaması için 3 saniye beklemek yeterli herhalde)
+
+mariadb -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE_NAME;" # Eğer veritabanı yoksa oluşturuyoruz
+mariadb -e "CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';" # Eğer kullanıcı yoksa oluşturuyoruz
+mariadb -e "GRANT ALL PRIVILEGES ON $MYSQL_DATABASE_NAME.* TO '$MYSQL_USER'@'%';" # Kullanıcıya veritabanı üzerindeki tüm yetkileri veriyoruz
+mariadb -e "FLUSH PRIVILEGES;" # Yetkileri güncelliyoruz
+mariadb -e "SHUTDOWN;" # Mariadb servisini kapatıyoruz (Çünkü Mariadb servisi başlamış oluyor)
+
+exec "$@" # Gelen komutları çalıştırıyoruz (bu durumda CMD ["mariadb"] olacak)
+```
