@@ -1,352 +1,56 @@
-# KaanKny-INCEPTION
-
-Tarayıcınızdan web sitesine erişmek istediğinizde, NGINX dışarıdan gelen isteği kabul eder ve ilgili web sayfasını sunmak için Wordpress servisine yönlendirir. Wordpress, gerekli içeriği MariaDB veritabanından alır ve dinamik olaral web sayfasını oluşturarark tarayıcınıza gönderir. Sonuç olarak, web sitesinin ön yüzü tarayıcınızda görüntülenir.
-
-## TEMEL KAVRAMLAR
-
-### İŞLETİM SİSTEMİ
-İşletim sistemi (OS), bilgisayar donanımını yöneten ve bilgisayar kaynaklarını (CPU, bellek, disk sürücüleri, ağ bağlantıları vb.) kontrol eden temek bir yazılım sistemidir. İşletim sistemi, kullanıcılar ve uygulamalar arasında bir arayüz görevi görür, kaynakları etkili bir şekilde yönetir ve bilgisayarın genel performansını artırır.
-İşetim sisteminin temek görevleri şunları içerir:
-- Kaynak Yönetimi:
-  - CPU, bellek, disk alanı gibi donanım kaynaklarını uygulamalar arasında adil bir şekilde paylaştırır.
-  - İşletim sistemi, birden çok uygulama arasında geçiş yapma ve aynı anda çalışabilme yeteneği sağlar.
-- Dosya Sistemi Yönetimi:
-  - Verilerin depolanması ve organizasyonunu sağlar
-  - Dosya sistemi, dosya ve klasörleri düzenler ve kullanıcıların verilere erişimini yönetir.
--İletişim ve Arabirim:
-  - Bilgisayar kullanıcısı ile sistem arasındaki etkileişimi sağlar
-  - Grafiksel veya komut satırı arabirimleri gibi kullanıcı arayüzleri sağlar.
-- Güvenlik ve Erişim Kontrolü:
-  - Bilgisayar sistemine güvenli bir şekilde erişim sağlar.
-  - Kullanıcıların ve uygulamaların belirli kaynaklara erişimini kontrol eder.
-- Hata Tespiti ve Hata Ayıklama:
-  - İşletim sistemi, sistemde meydana gelen hataları tespit eder ve kullanıcılara veya sistem yöneticilerine bilgi verir.
-  - Hata ayıklama ve kayıt tutma yetenekleri sunar.
-- Ağ Yönetimi:
-  - Bilgisayarın ağ iletişimini yönetir.
-  - Veri iletimi, bağlantı yönetimi ve diğer ağ görevlerini yerine getirir.
-- Sistem Kaynaklarının Kullanım ve İzlenmesi:
-  - İşetim sistemi, sistem kaynaklarını (CPU kulllanımı, bellek tüketimi, disk allanı kullanımı) izler ve performansı optimize eder
-İşletim sistemleri, farklı türlerde (Windows, Linux, macOS gibi) ve farklı cihazlarda (bikgisayar, mobil cihazlar gömülü sistemler) kullanılır. temel olarak, bilgisayarın düzgün çalışmasını sağlayan ve kullanıcıların ve uygulamaların bilgisayar kaynaklarına erişimini düzenleyen bir yazılım tabakasıdır.
-Özet olarak işletim sistemi uygulamalar ile donanımlar arasında köprü görevi gören bir yazılımdır.
-
-### KERNEL
-
-Çekirdek (kernel), bir işletim sisteminin temel bileşinidir ve donanım ile yazılım arasındaki iletişimi yönetir. İşletim sistemi çekirdeği, bilgisayar donanımına doğdurdan erişim sağlar ve uygulamaların bu donanım kaynaklarını kullanması yönetir. Çekirdek, işletim sisteminin kalbidir.
-
-Her uygulama için teorik olarak bir adet sunucu kurmam gerekir ve bunun dezavantajı bu uygulamalar sunucunun tüm gücünü 7/24 kullanamadığı için ortaya atıl bir kapasite sorunu çıkıyor. Atıl kapasite sorunu, "bir sistemde veya organizasyonda mevcut olan kaynakların tam anlamıyla kullanılmaması durumunu ifade eder. Bu durum, kaynakların potansiyel olarak daha etkili bir şekilde kullanılaileceği anlamına gelir. Atıl kapasite sorunu genellikle verimlilik eksikliği, kaynak israfı veya maliyet etkinliğinin düşük olması şekilde ortaya çıkar.
-Atıl kapasite sorununa örnekler şunları içerebilir:
-- İşgücü Kapasitesi:
-  - Bir organizasyonda personel kapasitesinin tam kullanmaması durumu. Bir durum, iş süreçlerinin etkin bir şekilde planlanmamıs veya işgücü kaynaklarının yönetilmemiş olabileceği gösterebilir.
-- Üretim Kapasitesi:
-  - Bir üretim tesisinin maksimum kapasitesini kullanmaması. Bu durum, üretim süreçlerinin etkli bir şekilde planlanmamış olabilir.
-- Bilgi Teknolojileri Kapasitesi:
-  - Bilgisayar sistemlerinin veya sunucuların tam kapasitesiyle çalışmaması. Bu durum, bilgi teknolojileri altyapısının etkili bir şekilde planlanmamıs olabileceğini gösterir.
-- Taşıma Kapasitesi:
-  - Taşıma şirketlerinde araç filosunun tam kapasiteyle kullanılmaması durumu. Bu durum, lojistik süreçlerin etkili bir şekilde planlanmamış olabilir.
-- Finansal Kaynak Kapasitesi:
-  - Bir şirketin finansal kaynaklarının tam kapasiteyle değerlendirilmemesi durumu. Bu durum, şirketin yatırım fırsatlarınını değerlendirmede veya sermaye kullanımında etkili bir şekilde hareket etmememsi anlamına gelebilir.
-Atıl kapasite sorunu, bir organizasyonun veya sistemin potansiyel değerini tam anlamıyla kullanamadığı bir durumu ifade eder. Bu durumun giderilmesi için etkin planlama, kaynak yönetimi ve sürekli iyileiştirme stratejileri geliştirilebilir. Bu sayede mevcut kaynaklar daha etklili bir şekilde kullanılır ve organizasyonun veya sistemin performansı artırılabilir.
-
-Sanallaştırma, aynı donanımları kullanan birden fazla sanal makineyi birbirinden izole bir biçimde kullanmamıza yarayan teknolojidir.
-
-Sanallaştırma, bilgisayar sistemlerinde fiziksel donanım kaynaklarının sanal makineler, konteynerler veya sanal ağlar gibi soyutlamalar aracılığıyla sanal ortamlarda çalışan birden çok işletim sistemi veya uygulama tarafından kullanılabilir hale getirilmesini ifade eder. Temelde, bir bilgisayarın donanım kaynaklarının mantıksal olarak bölünmesi ve izole edilmesi sürecidir. Bu bir bilgisayar sistemini daha verimli, esnek ve yönetilebilir hale getirir. İşte sanallaştırma kavramının temel bileşenleri:
-
-- Sanal Makineler (Virtual Machines - VMs):
-  - Sanal makineler, fiziksel bir bilgisayar üzerinde çalışan ve kendie işletim sistemine ve uygulamalarına sahip olan sanal ortamlardır. Bu sanal makienler, bir hypervisor (sanallaştırma yöneticisi) tarafından oluşturulur ve yönetilir.
-- Hypervisor (Sanallaştırma Yöneticisi):
-  - Hypervisor, fiziksel donanım üzerinde samal makineler oluşturan ve yöneten bir yazılımdır. Bu yazılım, sanal makienerlin birbirinden izole olmasını sağlar ve kaynakları etkili bir şekilde paylaştırır.
-- Container:
-  - Containerlar, sanal makienerlden daha hafif bir soyutlama sağlar. Her bir container, kendi işletim sistemini ve uygulamalarını içerir. ancak bir host işletim sistemi çekirdeiği paylaşır. Containerlar, hızlı başlatma, düşük sistem kaynağı tüketimi ve daha hızlı dağıtım avantajları sunar.
-- Sanal Ağlar:
-  - Sanallaştırma, sanal ağlar oluşturarak fakrlı sanal makinelerin veya containerların birbiriyle iletişim kurmasını sağlar. Bu fiziksel ağ altyapısına benzer bir yapı sağlar ancak sanal ortamlarda gerçekleşir.
-- Kaynak Yönetimi ve Bölümlendirme:
-  - Sanallaştırma , bilgisayar kaynaklarını (CPU, bellek, disk alanı) bölümlendirme ve izole etme yeteneği sunar. Bu, bir uygulamanın diğerlerini etkilemeden belirli bir miktar kaynağı kullanmabilmesini sağlar.
-
-Sanallaştırma özellikle büyük veri merkezleri, bulut hizmetleri ve şirket içi ağ altyapıları gibi ortamlarda yaygın olarak kullanılır. Bu teknoloji, donanım kaynaklarını daha etkili bir şekilde kullanma, esneklik sağlama, iş sirekliliğini artırma ve uygulamarların daha hızlı bir şekilde dağıtılmasını mümkün kılma avanjatları sunar.
-
-#
-
-Artık birden fazla uygulamayı birbirinden izole kullanailiyoruz. Faakat günümüzde bu kullanımında artık bazı sıkıntılar çıkmaya başlıyor.
-
-## CONTAINER
-
-Containerlar, bir yazılım uygulamasının ve onun bağımlılıklarının, işletim sistemi düzeyinde izole bir ortamda çalıştırılmasını sağlayan bir sanallaştırma teknolojisidir. Containerlar, uygulamaların taşınabilirliğini, hızlı dağıtımını ve çevik geliştirme süreçlerini destekleyen bir çözümüdür.
-Containler teknolojisi, özellikle Docker gibi opüler araçlar tarafından yaygın olarak kullanılmamaktadır. Containerlar, aşşağıdaki temel özellikler sahiptir:
-- İzolasyon:
-  - Her bir container, kendi dosya sistemini, ağ bağlantısını ve süreçlerini çerir. Bu br containerin çalışma zamanında diğer containerlardan izole olmasını sağlar. Ancak tam izolasyon seviyesi sanal makineler kadar yüksek değildir.
-- Hafif ve Hızlı:
-  - Containerlar, işletim sistemi çekirdeğini paylaştıkları için daha fafi ve hızlıdır. Her bir container, uygulama ve bağımlılıkarlnı içeren bir görüntünden oluşur ve bu görüntü, tüm gereksinimleri içerdiği için hızlı bir şekilde başlatılabilir.
-- Taşıabilirlik:
-  - Containlar, uygulama ve bağımlılıklarını birleştiren bir "container görüntüsü" kullanır. Bu görüntü, bir uygulamının tüm gerekli bileşenleri içerir ve farklı ortamlarda (gelitşrme, test, üretim) aynı şekilde çalışabilir. Bu da uygulamaın kolayca yaşınabilir ve çevik bir şekilde geliştirilebilri olmasını sağlar.
- 
-### FARKLARI
-Containerlar ve sanal makineler benzer temel amaca sahip olmalarına rağmen, çalışma prensipleri ve tasarımları açısından önemleri farklara sahiptirler. İşte bu iki sanallaştırma teknolojisi arasındaki temel fakrlar:
-- İzolasyon Seviyesi:
-  - Sanal makineler: Sanal makineler, her bir kendi işletim sistemini içeren tam bir sanal ortam sağlar. bu her sanal makinenin kendi çekirdeği ve belleği ve dosya sistemine sahip olması anlamına gelir.
-  - Containerlar: Containerlar, işletim sistemi çekrdeiği paylaşan gafif ve izole edilmiş ortamlardır. Her bir container, kendi dosya sistemini, kullanıcı alanını ve süreçlerini içerir, ancak işletim sistemi çekirdeği paylaşıldığı içi daha hafif ve hızlıdr.
-- Performans:
-  - Sanal Makineler: Sanal makineler, daha ağır oldukları için daha fazla kaynağa ihtiyaç duyarlar. Tam bir işletim sistemi içerdiği için başlatılması daha uzun sürebilir ve daha fazla bellek kullanabilir.
-  - Containerlar: Containerlar daha hafif ve daha hızlıdr. İşletim sistemi çekirdeği paylaşıldığı için daha az bellek tüketirler ve çok daha hızlı başlatılıp durdurulabilirler.
-- Birbirinden İzole Edilmesi:
-  - Sanal makineler: Sanal makineler, daha güçlü bir ozalosyon sağlar ve bir sanal makinedeki güvenlij açığı, gider sanal makienleri etkilemez.
-  - Containerlar: Containerlar, daha hafif izolasyon sağlar. İşletim sistemi çekirdeği paylaşıldığı için bir containerdaki bi sorun diğerlerini etkileyebilir.
-- Yedekleme ve Dağıtım:
-  - Sanal makineler: Sanal makineler yedeklenmesi ve taşınması genellikle karmalıktır. Tam bir işletim sistemi içerdiği için dosya boyutlarıda büyüktür.
-  - Containerlar: Containerlar, hızlı ve kolay şekilde yedeklenebilir ve taşınabilir. Dosya boyutu küçüktür.
-Sonuç olarak her teknoloji kendi avantajları ve kullanım seneryolarına sahiptir. Sanal makineler, daha kapsamlı izolasyon ve bağımsızlık sağlamak için kullanılırken, containerlar daha fafif ve hızlı dağıtım için tercih edilmektedir.
-
-#
-
-Artık tek bir işletim sistemi üzerinde birbirinden izole birden fazla uygulama var bu şekilde processleri koyduk ve çalışması için tüm ek paketler var ama işletim sisteminin kaynakları, özellikleri yok. artık bu 2 paket izole bir process olarak çalışıyor.
-
-- Namespaces (isim alanları):
-  - isim alanları, işletim sistemi içindeki farklı türde kaynakları özole etmek ve her bir containeri kendi sanal ortamında oluşturmak için kullanılır. Bu bir containerın diğer containerdan ve ana işletim sisteminde özole olasını sağlar. Başlıca namespcaes şunları içerir:
-    - PID: Süreç izolasyonu sağlar
-    - Network: Ağ kaynakları izolasyonu sağlar
-    - Mount: Dosya sistemi izolasyonu sağlar
-    - IPC: Süreç iletişim izolasyonu sağlar
-    - UTS: Sistem adı izolasyonu sağlar
-    - User: Kullanıcı alanı izolasyonu sağlar.
-
-- Control Groups (Kontrol Grupları):
-  - Kontrol grupları, bir grup sürecin kullanılabileceği kaynakları sınırlamak, izlemek ve önceliklendirmek için kullanılır. Bu bellek, CPU, ağ bant genişliği gibi kaynakların etkin bir şekilde yönetilmesini sağlar.
-  - Kontrol grupları, kaynakların adil bir şekilde paylaşılamsını ve aşırı taleperlin diğer süreçleri etkilememsini sağlar.
-Container teknolojisi, bu isim alanları ve kontrol grupları sayesinde uygulamaların birbirinden izole bir şekilde çalışmasını, kaynakların etkili bir şekilde kullanılmasını ve taşınabilirliği artırarar hızlı dağıtımı sağlar. Docker, Kubernetes ve diğer container platformları, bu özellikleri kullanarak containerlarınyönetimini kolaylaştırır ve geliştiricilere operasyon ekiperine esneklik sunar.
-
-## Docker
-
-Docker bir container tabanlı sanallaştırma platformudur vek ullanıcıya bir uygulamanın bağımlıklıklarını ve çalışma ortamının hafif taşınabilir bir container içinde paketlenmesini ve izole edilmiş bir şekilde çalıştırılmasını sağlar. İşte docker'ın temel özelliklerini ve avantajlarını vugulayan birleiştirimiş açıklama:
-Docker, diğer sanal kanelerden farklı olarak, linux çekirdeği paylaşarak bağısız containerlar oluşturur. bu sanal işletim sistemini sifiran oluşturmak yerine, daha hızlı ve verimli bir şekilde sistemlerin kullanılmasını sağlar. bu sayede docker oladam bir sistem oluşturmak için gereken zorlu ve zaman laıcı süreçler ortadan kalkar.
-Docker wen sitelerinin kurulumları, teslteri ve dağıtımları gibi iişlemlşeri hızlı ve kolay bir şekilde gerçekleştirmek içi kullanılır. Özellikle webmaster'lar için "Mevcut bilgisayarda çalışıp, sunucuda çalışmama" gibi sorunları ortadan kaldırır. Docker'ınn sağladığı izolasyon, uygulamarın herhangi bir ortamda tutuarluı bir şekilde çalışmasını sağlar.
-Docker'ın temel avantajlarından biri, daha az sistem kaynağı tüketmesi sağlamasıdır. Geleneklesel sanal makinelerden farlı olarak Docker, contaileri ayrı bir işerim sistemi katmanı içermez ve Docker engine üzeirnden bir işletim sistemine erğşim sağlar. buda fahif ve hızlı containerin olıştumrnasını mümkün kılar.
-Sonuç olarak docker uygulama gelitlirme, test etme ve dağıtma süreçlerinini hızlandıran, taşınabilr ve izole etilmiş containerlar sunan bir sannallaştırma çözümüdür.
-
-Docker engine, uygulamarı containerlara paketleme ve dağıtma konusunda oldukça popüler olan contailerlaştırma teknolojisi sunar. bu yazılım geliştirme süreçlerini hızlandırabilir, uygulama bağımlılıkalrını izole edebilir ve farklı ortamlarda sorunsuz bir şekilde uygulamalar oluşturmayı kolaylaştırabilir.
-
-## 
-
-docker-compose.yml
-```yml
-version: "3.8" # versioyun 3.8 olarak ayarlıyoruz
-
-services: # servislerimizi tanımlıyoruz
-  mariadb: # mariadb servisimizi tanımlıyoruz
-    container_name: mariadb # container ismini mariadb olarak belirliyoruz
-    build: ./requirements/mariadb # build işlemi için gereken dosya yolunu belirliyoruz (mariadb klasörü içerisindeki Dockerfile dosyasını kullanacağız)
-    env_file: # .env dosyasını kullanarak ortam değişkenlerini belirliyoruz
-      - .env
-    networks: # mariadb servisimizi inception adında bir ağa bağlıyoruz
-      - inception
-    volumes: # mariadb servisimizin verilerini saklamak için bir volume oluşturuyoruz (mariadb adındaki volume'u /var/lib/mysql dizinine bağlıyoruz)
-      - mariadb:/var/lib/mysql
-    restart: unless-stopped # mariadb servisimiz herhangi bir hata durumunda yeniden başlatılacak
-  wordpress: # wordpress servisimizi tanımlıyoruz
-    container_name: wordpress # container ismini wordpress olarak belirliyoruz
-    build: ./requirements/wordpress # build işlemi için gereken dosya yolunu belirliyoruz (wordpress klasörü içerisindeki Dockerfile dosyasını kullanacağız)
-    env_file: # .env dosyasını kullanarak ortam değişkenlerini belirliyoruz
-      - .env
-    networks: # wordpress servisimizi inception adında bir ağa bağlıyoruz
-      - inception
-    volumes: # wordpress servisimizin verilerini saklamak için bir volume oluşturuyoruz (wordpress adındaki volume'u /var/www/html dizinine bağlıyoruz)
-      - wordpress:/var/www/html
-    depends_on: # wordpress servisimizin çalışabilmesi için mariadb servisine bağlı olduğunu belirtiyoruz
-      - mariadb
-    restart: unless-stopped # wordpress servisimiz herhangi bir hata durumunda yeniden başlatılacak
-  nginx: # nginx servisimizi tanımlıyoruz
-    container_name: nginx # container ismini nginx olarak belirliyoruz
-    build: ./requirements/nginx # build işlemi için gereken dosya yolunu belirliyoruz (nginx klasörü içerisindeki Dockerfile dosyasını kullanacağız)
-    env_file: # .env dosyasını kullanarak ortam değişkenlerini belirliyoruz
-      - .env
-    ports:
-      - "443:443" # nginx servisimizi dış ağa açmak için 443 portunu kullanacağız
-    networks: # nginx servisimizi inception adında bir ağa bağlıyoruz
-      - inception
-    volumes: # nginx servisimizin konfigürasyon dosyalarını saklamak için bir volume oluşturuyoruz (nginx adındaki volume'u /etc/nginx/conf.d dizinine bağlıyoruz)
-      - wordpress:/var/www/html
-    depends_on: # nginx servisimizin çalışabilmesi için wordpress servisine bağlı olduğunu belirtiyoruz
-      - wordpress
-    restart: unless-stopped # nginx servisimiz herhangi bir hata durumunda yeniden başlatılacak
-
-networks: # inception adında bir ağ oluşturuyoruz
-  inception: # inception adındaki ağımızı tanımlıyoruz
-    name: inception # ağımızın adını inception olarak belirliyoruz
-    driver: bridge # ağımızın tipini bridge olarak belirliyoruz (bridge ağ tipi, container'ların birbirleriyle iletişim kurabilmesi için kullanılan bir ağ tipidir)
-
-volumes: # mariadb ve wordpress servislerimizin verilerini saklamak için iki adet volume oluşturuyoruz
-  wordpress: # wordpress adındaki volume'u tanımlıyoruz
-    name: wordpress # volume'un adını wordpress olarak belirliyoruz
-    driver: local # volume'un tipini local olarak belirliyoruz (local volume'lar, host makinemizde saklanan verileri container'larımızla paylaşmamızı sağlar)
-    driver_opts: # volume'un bağlı olduğu dizini belirliyoruz
-      type: none # volume'un tipini none olarak belirliyoruz (volume'un tipi none olursa, volume'un bağlı olduğu dizin host makinemizde olmalıdır)
-      o: bind # volume'un bağlı olduğu dizin host makinemizde olmalıdır (bind tipi, volume'un bağlı olduğu dizini host makinemizde oluşturur)
-      device: /home/kkanyilm/data/wordpress # volume'un bağlı olduğu dizini belirliyoruz
-  mariadb: # mariadb adındaki volume'u tanımlıyoruz
-    name: mariadb # volume'un adını mariadb olarak belirliyoruz
-    driver: local # volume'un tipini local olarak belirliyoruz (local volume'lar, host makinemizde saklanan verileri container'larımızla paylaşmamızı sağlar)
-    driver_opts: # volume'un bağlı olduğu dizini belirliyoruz
-      type: none # volume'un tipini none olarak belirliyoruz (volume'un tipi none olursa, volume'un bağlı olduğu dizin host makinemizde olmalıdır)
-      o: bind # volume'un bağlı olduğu dizin host makinemizde olmalıdır (bind tipi, volume'un bağlı olduğu dizini host makinemizde oluşturur)
-      device: /home/kkanyilm/data/mariadb # volume'un bağlı olduğu dizini belirliyoruz
-```
-
-## MARIADB
-
-### 50-server.cnf
-```cnf
-[mysqld]
-
-user                    = mysql # user to run as
-socket                  = /run/mysqld/mysqld.sock # socket file (for local connections)
-port                    = 3306 # port to listen on
-basedir                 = /usr # base directory (where the binaries are)
-datadir                 = /var/lib/mysql # data directory (where the databases are)
-log_error               = /var/log/mysql/error.log # error log file (where errors are logged)
-expire_logs_days        = 10 # days to keep logs
-character-set-server    = utf8mb4 # character set
-bind-address            = 0.0.0.0 # bind address
-```
-
-### dtstart.sh
-```sh
-#!/bin/bash
-
-service mariadb start # Mariadb servisini başlatıyoruz
-
-sleep 3 # 3 saniye bekliyoruz (Mariadb servisinin başlaması için 3 saniye beklemek yeterli herhalde)
-
-mariadb -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE_NAME;" # Eğer veritabanı yoksa oluşturuyoruz
-mariadb -e "CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';" # Eğer kullanıcı yoksa oluşturuyoruz
-mariadb -e "GRANT ALL PRIVILEGES ON $MYSQL_DATABASE_NAME.* TO '$MYSQL_USER'@'%';" # Kullanıcıya veritabanı üzerindeki tüm yetkileri veriyoruz
-mariadb -e "FLUSH PRIVILEGES;" # Yetkileri güncelliyoruz
-mariadb -e "SHUTDOWN;" # Mariadb servisini kapatıyoruz (Çünkü Mariadb servisi başlamış oluyor)
-
-exec "$@" # Gelen komutları çalıştırıyoruz (bu durumda CMD ["mariadb"] olacak)
-```
-
-### Mariadb Dockerfile
-```Dockerfile
-# debian:bullseye imajını temel alır
-FROM debian:bullseye
-
-# mariadb-server paketini yükler
-RUN apt-get update && apt-get install -y mariadb-server
-
-# 3306 portunu açar
-EXPOSE 3306
-
-# ana makine üzerindeki conf dosyalarını kopyalar
-COPY ./conf/50-server.cnf /etc/mysql/mariadb.conf.d/
-
-# ana makine üzerindeki dbstart.sh dosyasını kopyalar
-COPY ./tools/dbstart.sh /
-
-# dbstart.sh dosyasına çalıştırma izni verir
-RUN chmod +x /dbstart.sh
-
-# entrypoint olarak dbstart.sh dosyasını çalıştırır
-ENTRYPOINT [ "/dbstart.sh" ]
-
-# cmd olarak mariadbd komutunu çalıştırır
-CMD [ "mariadbd" ]
-```
-
-## NGINX
-
-### nxstart.sh
-```sh
-#!/bin/bash
-
-echo "server { "  >> /etc/nginx/sites-enabled/default # Nginx ayarlarını yapıyoruz
-echo "	listen 443 ssl;"  >> /etc/nginx/sites-enabled/default # 443 portundan ssl ile dinlemesini sağlıyoruz (IPV4)
-echo "	listen [::]:443 ssl;"  >> /etc/nginx/sites-enabled/default # 443 portundan ssl ile dinlemesini sağlıyoruz (IPV6)
-echo "	server_name $DOMAIN_NAME;"  >> /etc/nginx/sites-enabled/default # Domain adını belirtiyoruz
-
-echo "	ssl_certificate $CERTIFICATES; "  >> /etc/nginx/sites-enabled/default # Sertifikaları belirtiyoruz
-echo "	ssl_certificate_key $CERTIFICATES_KEYOUT; "  >> /etc/nginx/sites-enabled/default # Sertifikaların key'ini belirtiyoruz
-echo "	ssl_protocols TLSv1.3;"  >> /etc/nginx/sites-enabled/default # SSL protokolünü belirtiyoruz
-
-echo "	root /var/www/html;"  >> /etc/nginx/sites-enabled/default # Nginx'in root dizinini belirtiyoruz
-
-echo "	index index.php;"  >> /etc/nginx/sites-enabled/default # Index dosyasını belirtiyoruz
-
-echo '        location / {'  >> /etc/nginx/sites-enabled/default # Nginx'in location ayarlarını yapıyoruz
-echo '                try_files $uri $uri/ =404;'  >> /etc/nginx/sites-enabled/default # Dosya yoksa 404 döndürüyoruz
-echo '        }'  >> /etc/nginx/sites-enabled/default
- 
-echo "	location ~ \.php$ { "  >> /etc/nginx/sites-enabled/default # Php dosyaları için location ayarlarını yapıyoruz
-echo "		include snippets/fastcgi-php.conf;"  >> /etc/nginx/sites-enabled/default # Fastcgi ayarlarını dahil ediyoruz
-echo "		fastcgi_pass $MYSQL_DATABASE_NAME:9000;"  >> /etc/nginx/sites-enabled/default # Php dosyalarını hangi porttan dinleyeceğini belirtiyoruz
-echo "		proxy_connect_timeout 300s; "  >> /etc/nginx/sites-enabled/default # Proxy bağlantı timeout ayarlarını yapıyoruz
-echo "		proxy_send_timeout 300s; "  >> /etc/nginx/sites-enabled/default # Proxy gönderme timeout ayarlarını yapıyoruz
-echo "		proxy_read_timeout 300s; "  >> /etc/nginx/sites-enabled/default # Proxy okuma timeout ayarlarını yapıyoruz
-echo "		fastcgi_send_timeout 300s; "  >> /etc/nginx/sites-enabled/default # Fastcgi gönderme timeout ayarlarını yapıyoruz
-echo "		fastcgi_read_timeout 300s; " >> /etc/nginx/sites-enabled/default # Fastcgi okuma timeout ayarlarını yapıyoruz
-echo "	} "  >> /etc/nginx/sites-enabled/default
-echo "}" >> /etc/nginx/sites-enabled/default
-
-if [ ! -f $CERTIFICATES ]; then # Eğer sertifikalar yoksa sertifikaları oluşturuyoruz
-    # Openssl aracılığı ile sertifikaları oluşturuyoruz
-    openssl req \
-    # 2048 bitlik rsa algoritmasını kullanarak yeni bir key oluşturuyoruz
-    -newkey rsa:2048 \
-    # Key oluştururken şifre sormaması için kullanıyoruz
-    -nodes \
-    # Key'i $CERTIFICATES_KEYOUT dosyasına yazıyoruz
-    -keyout $CERTIFICATES_KEYOUT \
-    # Sertifika isteği yerine doğrudan kendi imzali sertifikayı oluşturuyoruz
-    -x509 \
-    # Sertifika 365 gün geçerli olacak şekilde oluşturuyoruz
-    -days 365 \
-    # Sertifikanın nereye kaydedileceğini belirtiyoruz
-    -out $CERTIFICATES \
-    # Sertifika oluştururken hangi bilgilerin isteneceğini belirtiyoruz
-    -subj "/C=TR/ST=KOCAELI/L=GEBZE/O=42Kocaeli/CN=$DOMAIN_NAME";
-fi
-
-exec "$@"
-```
-
-## Wordpress
-
-### wp.sh
-
-```sh
-#!/bin/bash
-
-chown -R www-data: /var/www/*; # /var/www dizinindeki tüm dosyaların sahibi ve grubunu www-data yapıyoruz
-chmod -R 755 /var/www/*; # /var/www dizinindeki tüm dosyalara okuma, yazma (sahip) ve çalışma izinleri veriyoruz
-mkdir -p /run/php/; # /run/php dizinini oluşturuyoruz, eğer yoksa
-touch /run/php/php7.4-fpm.pid; # /run/php dizininde php7.4-fpm.pid dosyasını oluşturuyoruz
-
-if [ ! -f /var/www/html/wp-config.php ]; then # Eğer wp-config.php dosyası mevcut değilse
-    mkdir -p /var/www/html; # /var/www/html dizinini oluşturuyoruz, eğer yoksa
-    cd /var/www/html; # /var/www/html dizinine geçiyoruz
-
-    wp-cli core download --allow-root; # WordPress çekirdek dosyalarını indiriyoruz
-
-    wp-cli config create --allow-root \ # WordPress yapılandırma dosyasını oluşturuyoruz
-        --dbname=$MYSQL_DATABASE_NAME \ # Veritabanı adını belirliyoruz
-        --dbuser=$MYSQL_USER \ # Veritabanı kullanıcı adını belirliyoruz
-        --dbpass=$MYSQL_PASSWORD \ # Veritabanı kullanıcı şifresini belirliyoruz
-        --dbhost=mariadb; # Veritabanı sunucusunun adresini belirliyoruz
-
-    echo "WordPress installation has started. Wait until the installation is completed." # WordPress kurulumunun başladığını belirten bir mesaj yazdırıyoruz
-
-    wp-cli core install --allow-root \ # WordPress kurulumunu başlatıyoruz
-        --url=$DOMAIN_NAME \ # WordPress sitesinin URL adresini belirliyoruz
-        --title=$TITLE \ # WordPress sitesinin başlığını belirliyoruz
-        --admin_user=$WORDPRESS_ADMIN_NAME \ # WordPress yönetici kullanıcı adını belirliyoruz
-        --admin_password=$WORDPRESS_ADMIN_PASSWORD \ # WordPress yönetici şifresini belirliyoruz
-        --admin_email=$WORDPRESS_ADMIN_EMAIL; # WordPress yönetici email adresini belirliyoruz
-
-    wp-cli user create --allow-root \ # Yeni bir WordPress kullanıcısı oluşturuyoruz
-        $MYSQL_USER $MYSQL_EMAIL \ # Kullanıcı adı ve email adresini belirliyoruz
-        --user_pass=$MYSQL_PASSWORD; # Kullanıcı şifresini belirliyoruz
-fi
-
-echo "You can visit $DOMAIN_NAME in your browser." # Tarayıcıdan WordPress sitesine erişim yapılabileceğini belirten bir mesaj yazdırıyoruz
-
-exec "$@" # Başlatılan komut dosyasının sonuna kadar çalıştırılmasını sağlıyoruz
-
-```
+<h1>Inception</h1>
+
+<h2>Project Overview</h2>
+<p>The <code>inception</code> project is a system administration exercise that aims to broaden your knowledge of system administration by using Docker. You will virtualize several Docker images, creating them in your new personal virtual machine.</p>
+
+<h2>Purpose</h2>
+<p>The purpose of this project is to set up a small infrastructure composed of different services under specific rules using Docker and Docker Compose.</p>
+
+<h2>What You Will Learn</h2>
+<ul>
+    <li>How to use Docker and Docker Compose to create and manage containers.</li>
+    <li>How to write Dockerfiles to build custom Docker images.</li>
+    <li>How to set up and configure various services such as NGINX, WordPress, and MariaDB.</li>
+    <li>How to manage container networks and volumes.</li>
+    <li>How to use environment variables for configuration and security.</li>
+</ul>
+
+<h2>Project Contents</h2>
+
+<h3>Mandatory Part</h3>
+<p>You must implement the following requirements:</p>
+<ul>
+    <li>Write a Makefile to set up your entire application using <code>docker-compose.yml</code>.</li>
+    <li>Use Docker Compose to set up the following services:
+        <ul>
+            <li>An NGINX container with TLSv1.2 or TLSv1.3 only.</li>
+            <li>A WordPress container with php-fpm installed and configured.</li>
+            <li>A MariaDB container.</li>
+            <li>A volume for the WordPress database.</li>
+            <li>A volume for the WordPress website files.</li>
+            <li>A Docker network to connect the containers.</li>
+        </ul>
+    </li>
+    <li>Each service must run in its dedicated container with a custom Dockerfile.</li>
+    <li>Containers must restart in case of a crash.</li>
+    <li>Use environment variables for configuration, stored in a <code>.env</code> file at the root of the <code>srcs</code> directory.</li>
+    <li>Configure your domain name to point to your local IP address (e.g., <code>login.42.fr</code>).</li>
+    <li>Ensure that the NGINX container is the only entry point to your infrastructure via port 443 using TLSv1.2 or TLSv1.3.</li>
+</ul>
+
+<h3>Bonus Part</h3>
+<p>The bonus part includes additional features:</p>
+<ul>
+    <li>Set up Redis cache for your WordPress website.</li>
+    <li>Set up an FTP server container pointing to the volume of your WordPress website.</li>
+    <li>Create a simple static website in a language of your choice (excluding PHP).</li>
+    <li>Set up Adminer.</li>
+    <li>Set up an additional service of your choice and justify its usefulness during the defense.</li>
+</ul>
+<p>The bonus part will only be assessed if the mandatory part is perfect.</p>
+
+<h2>Usage</h2>
+<p>To use the <code>inception</code> project, compile it using the provided Makefile and run it to set up the Docker containers and services. Ensure that the domain name is configured correctly to point to your local IP address.</p>
+
+<h2>Conclusion</h2>
+<p>The <code>inception</code> project provides an opportunity to learn about Docker, containerization, and system administration. By completing this project, you will gain valuable skills in managing containerized applications and setting up a secure infrastructure.</p>
